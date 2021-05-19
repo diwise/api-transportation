@@ -7,10 +7,10 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/database"
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/messaging/commands"
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/messaging/events"
-	"github.com/iot-for-tillgenglighet/messaging-golang/pkg/messaging"
+	"github.com/diwise/api-transportation/internal/pkg/database"
+	"github.com/diwise/api-transportation/internal/pkg/messaging/commands"
+	"github.com/diwise/api-transportation/internal/pkg/messaging/events"
+	"github.com/diwise/messaging-golang/pkg/messaging"
 	"github.com/streadway/amqp"
 )
 

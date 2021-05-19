@@ -1,7 +1,7 @@
 version: "3"
 services:
   transportation:
-    image: "iot-for-tillgenglighet/api-transportation:latest"
+    image: "diwise/api-transportation:latest"
     build:
       context: ..
       dockerfile: ./deployments/Dockerfile
@@ -22,7 +22,7 @@ services:
 
 
   postgresdb:
-    image: 'iot-for-tillgenglighet/testdb-postgres:latest'
+    image: 'diwise/testdb-postgres:latest'
     build:
       context: ..
       dockerfile: ./test/database/testdb-dockerfile

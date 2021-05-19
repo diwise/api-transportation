@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	db "github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/database"
+	db "github.com/diwise/api-transportation/internal/pkg/database"
 	log "github.com/sirupsen/logrus"
 )
 
