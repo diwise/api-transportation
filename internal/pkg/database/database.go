@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/persistence"
-	"github.com/iot-for-tillgenglighet/ngsi-ld-golang/pkg/datamodels/diwise"
+	"github.com/diwise/api-transportation/internal/pkg/persistence"
+	"github.com/diwise/ngsi-ld-golang/pkg/datamodels/diwise"
 	log "github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"

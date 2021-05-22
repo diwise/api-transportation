@@ -4,8 +4,8 @@ This service is responsible for storing road and road segment information and pr
 
 # Building, tagging and running with Docker
 
-`docker build -f deployments/Dockerfile -t iot-for-tillgenglighet/api-transportation:latest .`
-`docker run -it -p 8880:8880 iot-for-tillgenglighet/api-transportation:latest`
+`docker build -f deployments/Dockerfile -t diwise/api-transportation:latest .`
+`docker run -it -p 8880:8880 diwise/api-transportation:latest`
 
 # Request data from the service
 

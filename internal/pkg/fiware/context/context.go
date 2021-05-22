@@ -6,14 +6,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/diwise/api-transportation/internal/pkg/database"
+	"github.com/diwise/api-transportation/internal/pkg/messaging"
+	"github.com/diwise/api-transportation/internal/pkg/messaging/commands"
+	diwise "github.com/diwise/ngsi-ld-golang/pkg/datamodels/diwise"
+	"github.com/diwise/ngsi-ld-golang/pkg/datamodels/fiware"
+	ngsi "github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld"
+	ngsitypes "github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld/types"
 	"github.com/google/uuid"
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/database"
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/messaging"
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/messaging/commands"
-	diwise "github.com/iot-for-tillgenglighet/ngsi-ld-golang/pkg/datamodels/diwise"
-	"github.com/iot-for-tillgenglighet/ngsi-ld-golang/pkg/datamodels/fiware"
-	ngsi "github.com/iot-for-tillgenglighet/ngsi-ld-golang/pkg/ngsi-ld"
-	ngsitypes "github.com/iot-for-tillgenglighet/ngsi-ld-golang/pkg/ngsi-ld/types"
 
 	log "github.com/sirupsen/logrus"
 )

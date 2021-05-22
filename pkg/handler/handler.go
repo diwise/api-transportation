@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/diwise/api-transportation/internal/pkg/database"
+	fiwarecontext "github.com/diwise/api-transportation/internal/pkg/fiware/context"
+	"github.com/diwise/messaging-golang/pkg/messaging"
+	ngsi "github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/database"
-	fiwarecontext "github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/fiware/context"
-	"github.com/iot-for-tillgenglighet/messaging-golang/pkg/messaging"
-	ngsi "github.com/iot-for-tillgenglighet/ngsi-ld-golang/pkg/ngsi-ld"
 
 	"github.com/rs/cors"
 

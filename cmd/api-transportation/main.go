@@ -6,12 +6,12 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/database"
-	intmsg "github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/messaging"
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/messaging/commands"
-	"github.com/iot-for-tillgenglighet/api-transportation/internal/pkg/messaging/events"
-	"github.com/iot-for-tillgenglighet/api-transportation/pkg/handler"
-	"github.com/iot-for-tillgenglighet/messaging-golang/pkg/messaging"
+	"github.com/diwise/api-transportation/internal/pkg/database"
+	intmsg "github.com/diwise/api-transportation/internal/pkg/messaging"
+	"github.com/diwise/api-transportation/internal/pkg/messaging/commands"
+	"github.com/diwise/api-transportation/internal/pkg/messaging/events"
+	"github.com/diwise/api-transportation/pkg/handler"
+	"github.com/diwise/messaging-golang/pkg/messaging"
 )
 
 func openSegmentsFile(path string) *os.File {
