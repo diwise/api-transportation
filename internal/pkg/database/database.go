@@ -683,8 +683,9 @@ func (db *myDB) CreateRoadSurfaceObserved(src *diwise.RoadSurfaceObserved) (*per
 		return nil, fmt.Errorf("probability %f is not within acceptable range: (0, 1.0]", src.SurfaceType.Probability)
 	}
 
-	lon := src.Location.Value.Coordinates[0]
-	lat := src.Location.Value.Coordinates[1]
+	pt := src.Location.GetAsPoint()
+	lon := pt.Coordinates[0]
+	lat := pt.Coordinates[1]
 
 	if lon < 15.516210 || lon > 17.975816 {
 		return nil, fmt.Errorf("longitude %f is out of bounds: [15.516210, 17.975816]", lon)
