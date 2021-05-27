@@ -41,3 +41,16 @@ type RoadSurfaceObserved struct {
 	Longitude             float64
 	Timestamp             time.Time
 }
+
+type TrafficFlowObserved struct {
+	gorm.Model
+	TrafficFlowObservedID string
+	DateObserved          time.Time
+	DateObservedTo        time.Time
+	DateObservedFrom      time.Time
+	Latitude              float64
+	Longitude             float64
+	LaneID                uint
+	AverageVehicleSpeed   float64
+	RoadSegmentID         uint
+}

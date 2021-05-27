@@ -178,6 +178,10 @@ func (cs *contextSource) getRoadSurfaceObserved(query ngsi.Query, callback ngsi.
 	return nil
 }
 
+func (cs *contextSource) getTrafficFlowObserved(query ngsi.Query, callback ngsi.QueryEntitiesCallback) error {
+	tfos, err := cs.db.GetTrafficFlowsObserved()
+}
+
 func (cs *contextSource) GetEntities(query ngsi.Query, callback ngsi.QueryEntitiesCallback) error {
 
 	var err error
@@ -193,6 +197,8 @@ func (cs *contextSource) GetEntities(query ngsi.Query, callback ngsi.QueryEntiti
 			return cs.getRoadSegments(query, callback)
 		} else if typeName == "RoadSurfaceObserved" {
 			return cs.getRoadSurfaceObserved(query, callback)
+		} else if typeName == "TrafficFlowObserved" {
+			return cs.getTrafficFlowObserved(query, callback)
 		}
 	}
 

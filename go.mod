@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/diwise/messaging-golang v0.0.0-20210519125901-747dbe4d4b42
-	github.com/diwise/ngsi-ld-golang v0.0.0-20210519125641-0cb62633de46
+	github.com/diwise/ngsi-ld-golang v0.0.0-20210527112313-a85bce0e2245
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/kr/text v0.2.0 // indirect
