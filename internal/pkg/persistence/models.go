@@ -50,7 +50,8 @@ type TrafficFlowObserved struct {
 	DateObservedFrom      time.Time
 	Latitude              float64
 	Longitude             float64
-	LaneID                uint
+	LaneID                int
 	AverageVehicleSpeed   float64
+	Intensity             int
 	RoadSegmentID         uint
 }

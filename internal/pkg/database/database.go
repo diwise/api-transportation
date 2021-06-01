@@ -364,7 +364,7 @@ type Datastore interface {
 	GetRoadSurfacesObserved() ([]persistence.RoadSurfaceObserved, error)
 
 	CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*persistence.TrafficFlowObserved, error)
-	GetTrafficFlowsObserved() ([]persistence.TrafficFlowObserved, error)
+	GetTrafficFlowsObserved(limit int) ([]persistence.TrafficFlowObserved, error)
 }
 
 //InitFromReader takes a reader interface and initialises the datastore
@@ -783,14 +783,17 @@ func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*per
 	}
 
 	layout := "2006-01-02T15:04:05.000Z"
-	dateObservedStr, _ := time.Parse(layout, src.DateObserved.Value.Value)
+	dateObservedStr, err := time.Parse(layout, src.DateObserved.Value.Value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse DateObserved into string: %s", err)
+	}
 
 	tfo := &persistence.TrafficFlowObserved{
 		TrafficFlowObservedID: src.ID,
 		DateObserved:          dateObservedStr,
 		Latitude:              lat,
 		Longitude:             lon,
-		LaneID:                uint(src.LaneID.Value),
+		LaneID:                int(src.LaneID.Value),
 	}
 
 	if src.DateObservedTo != nil {
@@ -800,7 +803,7 @@ func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*per
 
 	if src.DateObservedFrom != nil {
 		dateObservedFromStr, _ := time.Parse(layout, src.DateObservedFrom.Value.Value)
-		tfo.DateObservedTo = dateObservedFromStr
+		tfo.DateObservedFrom = dateObservedFromStr
 	}
 
 	if src.AverageVehicleSpeed != nil {
@@ -815,9 +818,9 @@ func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*per
 	return tfo, nil
 }
 
-func (db *myDB) GetTrafficFlowsObserved() ([]persistence.TrafficFlowObserved, error) {
+func (db *myDB) GetTrafficFlowsObserved(limit int) ([]persistence.TrafficFlowObserved, error) {
 	tfo := []persistence.TrafficFlowObserved{}
-	result := db.impl.Find(&tfo)
+	result := db.impl.Find(&tfo).Limit(int(limit))
 	if result.Error != nil {
 		return nil, result.Error
 	}

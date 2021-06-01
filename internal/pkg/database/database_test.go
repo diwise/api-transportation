@@ -98,18 +98,16 @@ func TestUpdateRoadSegmentSurface(t *testing.T) {
 }
 
 func TestThatTrafficFlowObservedCanBeCreatedAndRetrieved(t *testing.T) {
-	segmentID := "21277:153930"
-	seedData := fmt.Sprintf("%s;%s;62.389109;17.310863;62.389084;17.310852\n", segmentID, segmentID)
-	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), strings.NewReader(seedData))
+	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
 
-	src := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", 62.389109, 17.310863, "2016-12-07T11:10:00Z", 2)
+	src := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", 62.389109, 17.310863, "2016-12-07T11:10:00Z", 2, 127)
 
 	_, err := db.CreateTrafficFlowObserved(&src)
 	if err != nil {
 		t.Errorf("Something went wrong when creating new TrafficFlowObserved: %s", err)
 	}
 
-	_, err = db.GetTrafficFlowsObserved()
+	_, err = db.GetTrafficFlowsObserved(3)
 	if err != nil {
 		t.Errorf("Something went wrong when retrieving TrafficFlowsObserved: %s", err)
 	}
