@@ -497,7 +497,7 @@ func NewDatabaseConnection(connect ConnectorFunc, datafile io.Reader) (Datastore
 		seg2road: map[string]string{},
 	}
 
-	db.impl.AutoMigrate(&persistence.Road{}, &persistence.RoadSegment{}, &persistence.SurfaceTypePrediction{}, &persistence.RoadSurfaceObserved{})
+	db.impl.AutoMigrate(&persistence.Road{}, &persistence.RoadSegment{}, &persistence.SurfaceTypePrediction{}, &persistence.RoadSurfaceObserved{}, &persistence.TrafficFlowObserved{})
 
 	if datafile != nil {
 		err := initFromReader(db, datafile)

@@ -179,7 +179,19 @@ func (cs *contextSource) getRoadSurfaceObserved(query ngsi.Query, callback ngsi.
 }
 
 func (cs *contextSource) getTrafficFlowObserved(query ngsi.Query, callback ngsi.QueryEntitiesCallback) error {
-	tfos, err := cs.db.GetTrafficFlowsObserved()
+	trafficFlowObserveds, err := cs.db.GetTrafficFlowsObserved()
+	if err != nil {
+		return err
+	}
+
+	for _, tfo := range trafficFlowObserveds {
+		fiwareTrafficFlowObserved := fiware.NewTrafficFlowObserved(tfo.TrafficFlowObservedID, tfo.Latitude, tfo.Longitude, tfo.DateObserved.String(), int(tfo.LaneID))
+		err = callback(fiwareTrafficFlowObserved)
+		if err != nil {
+			break
+		}
+	}
+	return nil
 }
 
 func (cs *contextSource) GetEntities(query ngsi.Query, callback ngsi.QueryEntitiesCallback) error {
