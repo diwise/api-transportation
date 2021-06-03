@@ -100,7 +100,7 @@ func TestUpdateRoadSegmentSurface(t *testing.T) {
 func TestThatTrafficFlowObservedCanBeCreatedAndRetrieved(t *testing.T) {
 	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
 
-	src := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", 62.389109, 17.310863, "2016-12-07T11:10:00Z", 2, 127)
+	src := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", 62.389109, 17.310863, "2016-12-07T11:10:00.000Z", 2, 127)
 
 	_, err := db.CreateTrafficFlowObserved(&src)
 	if err != nil {

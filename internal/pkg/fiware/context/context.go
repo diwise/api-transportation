@@ -40,6 +40,15 @@ func (cs *contextSource) CreateEntity(typeName, entityID string, req ngsi.Reques
 		}
 		rso.ID = uuid.New().String()
 		_, err = cs.db.CreateRoadSurfaceObserved(rso)
+	} else if typeName == "TrafficFlowObserved" {
+		tfo := &fiware.TrafficFlowObserved{}
+		err = req.DecodeBodyInto(tfo)
+		if err != nil {
+			log.Errorf("Could not create new TrafficFlowObserved: " + err.Error())
+			return err
+		}
+		tfo.ID = uuid.New().String()
+		_, err = cs.db.CreateTrafficFlowObserved(tfo)
 	}
 
 	return err
@@ -228,7 +237,7 @@ func (cs contextSource) ProvidesEntitiesWithMatchingID(entityID string) bool {
 }
 
 func (cs contextSource) ProvidesType(typeName string) bool {
-	return typeName == "Road" || typeName == "RoadSegment" || typeName == "RoadSurfaceObserved"
+	return typeName == "Road" || typeName == "RoadSegment" || typeName == "RoadSurfaceObserved" || typeName == "TrafficFlowObserved"
 }
 
 func (cs contextSource) RetrieveEntity(entityID string, request ngsi.Request) (ngsi.Entity, error) {
