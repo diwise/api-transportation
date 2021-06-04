@@ -782,7 +782,7 @@ func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*per
 		return nil, fmt.Errorf("latitude %f is out of bounds: [62.042301, 62.648987]", lat)
 	}
 
-	layout := "2006-01-02T15:04:05.000Z"
+	layout := "2006-01-02T15:04:05Z"
 	dateObservedStr, err := time.Parse(layout, src.DateObserved.Value.Value)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse DateObserved into string: %s", err)
