@@ -8,6 +8,7 @@ import (
 	"time"
 
 	db "github.com/diwise/api-transportation/internal/pkg/database"
+	"github.com/diwise/ngsi-ld-golang/pkg/datamodels/fiware"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -93,6 +94,22 @@ func TestUpdateRoadSegmentSurface(t *testing.T) {
 
 	if surfaceType != "snow" || probability != 75.0 || seg.DateModified() == nil {
 		t.Errorf("Failed to update road segment surface type. %s (%f) did not match expectations.", surfaceType, probability)
+	}
+}
+
+func TestThatTrafficFlowObservedCanBeCreatedAndRetrieved(t *testing.T) {
+	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
+
+	src := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", 62.389109, 17.310863, "2016-12-07T11:10:00.000Z", 2, 127)
+
+	_, err := db.CreateTrafficFlowObserved(&src)
+	if err != nil {
+		t.Errorf("Something went wrong when creating new TrafficFlowObserved: %s", err)
+	}
+
+	_, err = db.GetTrafficFlowsObserved(3)
+	if err != nil {
+		t.Errorf("Something went wrong when retrieving TrafficFlowsObserved: %s", err)
 	}
 }
 

@@ -12,6 +12,7 @@ import (
 
 	"github.com/diwise/api-transportation/internal/pkg/persistence"
 	"github.com/diwise/ngsi-ld-golang/pkg/datamodels/diwise"
+	"github.com/diwise/ngsi-ld-golang/pkg/datamodels/fiware"
 	log "github.com/sirupsen/logrus"
 
 	"gorm.io/driver/postgres"
@@ -361,6 +362,9 @@ type Datastore interface {
 
 	CreateRoadSurfaceObserved(src *diwise.RoadSurfaceObserved) (*persistence.RoadSurfaceObserved, error)
 	GetRoadSurfacesObserved() ([]persistence.RoadSurfaceObserved, error)
+
+	CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*persistence.TrafficFlowObserved, error)
+	GetTrafficFlowsObserved(limit int) ([]persistence.TrafficFlowObserved, error)
 }
 
 //InitFromReader takes a reader interface and initialises the datastore
@@ -493,7 +497,7 @@ func NewDatabaseConnection(connect ConnectorFunc, datafile io.Reader) (Datastore
 		seg2road: map[string]string{},
 	}
 
-	db.impl.AutoMigrate(&persistence.Road{}, &persistence.RoadSegment{}, &persistence.SurfaceTypePrediction{}, &persistence.RoadSurfaceObserved{})
+	db.impl.AutoMigrate(&persistence.Road{}, &persistence.RoadSegment{}, &persistence.SurfaceTypePrediction{}, &persistence.RoadSurfaceObserved{}, &persistence.TrafficFlowObserved{})
 
 	if datafile != nil {
 		err := initFromReader(db, datafile)
@@ -763,6 +767,65 @@ func (db *myDB) UpdateRoadSegmentSurface(segmentID, surfaceType string, probabil
 	result = db.impl.Create(stp)
 
 	return result.Error
+}
+
+func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*persistence.TrafficFlowObserved, error) {
+	pt := src.Location.GetAsPoint()
+	lon := pt.Coordinates[0]
+	lat := pt.Coordinates[1]
+
+	if lon < 15.516210 || lon > 17.975816 {
+		return nil, fmt.Errorf("longitude %f is out of bounds: [15.516210, 17.975816]", lon)
+	}
+
+	if lat < 62.042301 || lat > 62.648987 {
+		return nil, fmt.Errorf("latitude %f is out of bounds: [62.042301, 62.648987]", lat)
+	}
+
+	layout := "2006-01-02T15:04:05Z"
+	dateObservedStr, err := time.Parse(layout, src.DateObserved.Value.Value)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse DateObserved into string: %s", err)
+	}
+
+	tfo := &persistence.TrafficFlowObserved{
+		TrafficFlowObservedID: src.ID,
+		DateObserved:          dateObservedStr,
+		Latitude:              lat,
+		Longitude:             lon,
+		LaneID:                int(src.LaneID.Value),
+	}
+
+	if src.DateObservedTo != nil {
+		dateObservedToStr, _ := time.Parse(layout, src.DateObservedTo.Value.Value)
+		tfo.DateObservedTo = dateObservedToStr
+	}
+
+	if src.DateObservedFrom != nil {
+		dateObservedFromStr, _ := time.Parse(layout, src.DateObservedFrom.Value.Value)
+		tfo.DateObservedFrom = dateObservedFromStr
+	}
+
+	if src.AverageVehicleSpeed != nil {
+		tfo.AverageVehicleSpeed = src.AverageVehicleSpeed.Value
+	}
+
+	result := db.impl.Create(tfo)
+	if result.RowsAffected != 1 {
+		return nil, result.Error
+	}
+
+	return tfo, nil
+}
+
+func (db *myDB) GetTrafficFlowsObserved(limit int) ([]persistence.TrafficFlowObserved, error) {
+	tfo := []persistence.TrafficFlowObserved{}
+	result := db.impl.Find(&tfo).Limit(limit)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return tfo, nil
 }
 
 func validateSurfaceType(surfaceType string) error {

@@ -40,6 +40,15 @@ func (cs *contextSource) CreateEntity(typeName, entityID string, req ngsi.Reques
 		}
 		rso.ID = uuid.New().String()
 		_, err = cs.db.CreateRoadSurfaceObserved(rso)
+	} else if typeName == "TrafficFlowObserved" {
+		tfo := &fiware.TrafficFlowObserved{}
+		err = req.DecodeBodyInto(tfo)
+		if err != nil {
+			log.Errorf("Could not create new TrafficFlowObserved: " + err.Error())
+			return err
+		}
+		tfo.ID = uuid.New().String()
+		_, err = cs.db.CreateTrafficFlowObserved(tfo)
 	}
 
 	return err
@@ -178,6 +187,22 @@ func (cs *contextSource) getRoadSurfaceObserved(query ngsi.Query, callback ngsi.
 	return nil
 }
 
+func (cs *contextSource) getTrafficFlowsObserved(query ngsi.Query, callback ngsi.QueryEntitiesCallback) error {
+	trafficFlowObserveds, err := cs.db.GetTrafficFlowsObserved(int(query.PaginationLimit()))
+	if err != nil {
+		return err
+	}
+
+	for _, tfo := range trafficFlowObserveds {
+		fiwareTrafficFlowObserved := fiware.NewTrafficFlowObserved(tfo.TrafficFlowObservedID, tfo.Latitude, tfo.Longitude, tfo.DateObserved.String(), int(tfo.LaneID), int(tfo.Intensity))
+		err = callback(fiwareTrafficFlowObserved)
+		if err != nil {
+			break
+		}
+	}
+	return nil
+}
+
 func (cs *contextSource) GetEntities(query ngsi.Query, callback ngsi.QueryEntitiesCallback) error {
 
 	var err error
@@ -193,6 +218,8 @@ func (cs *contextSource) GetEntities(query ngsi.Query, callback ngsi.QueryEntiti
 			return cs.getRoadSegments(query, callback)
 		} else if typeName == "RoadSurfaceObserved" {
 			return cs.getRoadSurfaceObserved(query, callback)
+		} else if typeName == "TrafficFlowObserved" {
+			return cs.getTrafficFlowsObserved(query, callback)
 		}
 	}
 
@@ -210,7 +237,7 @@ func (cs contextSource) ProvidesEntitiesWithMatchingID(entityID string) bool {
 }
 
 func (cs contextSource) ProvidesType(typeName string) bool {
-	return typeName == "Road" || typeName == "RoadSegment" || typeName == "RoadSurfaceObserved"
+	return typeName == "Road" || typeName == "RoadSegment" || typeName == "RoadSurfaceObserved" || typeName == "TrafficFlowObserved"
 }
 
 func (cs contextSource) RetrieveEntity(entityID string, request ngsi.Request) (ngsi.Entity, error) {
