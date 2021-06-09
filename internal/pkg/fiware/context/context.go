@@ -187,8 +187,8 @@ func (cs *contextSource) getRoadSurfaceObserved(query ngsi.Query, callback ngsi.
 	return nil
 }
 
-func (cs *contextSource) getTrafficFlowsObserved(query ngsi.Query, callback ngsi.QueryEntitiesCallback, limit uint64) error {
-	trafficFlowObserveds, err := cs.db.GetTrafficFlowsObserved(int(limit))
+func (cs *contextSource) getTrafficFlowsObserved(query ngsi.Query, callback ngsi.QueryEntitiesCallback) error {
+	trafficFlowObserveds, err := cs.db.GetTrafficFlowsObserved(int(query.PaginationLimit()))
 	if err != nil {
 		return err
 	}
@@ -219,7 +219,7 @@ func (cs *contextSource) GetEntities(query ngsi.Query, callback ngsi.QueryEntiti
 		} else if typeName == "RoadSurfaceObserved" {
 			return cs.getRoadSurfaceObserved(query, callback)
 		} else if typeName == "TrafficFlowObserved" {
-			return cs.getTrafficFlowsObserved(query, callback, query.PaginationLimit())
+			return cs.getTrafficFlowsObserved(query, callback)
 		}
 	}
 
