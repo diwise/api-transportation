@@ -732,29 +732,7 @@ func (db *myDB) UpdateRoadSegmentSurface(segmentID, surfaceType string, probabil
 	result := db.impl.Where(segment).First(segment)
 
 	if result.RowsAffected == 0 {
-		log.Infof("No segment with id %s found in database. Adding it before surface can be updated.", segmentID)
-
-		memRoad, err := db.GetRoadBySegmentID(segmentID)
-		if err != nil {
-			return err
-		}
-
-		dbRoad := &persistence.Road{RID: memRoad.ID()}
-
-		for _, memSegID := range memRoad.GetSegmentIdentities() {
-			_, err := db.GetRoadSegmentByID(memSegID)
-			if err != nil {
-				return err
-			}
-
-			dbRoad.RoadSegments = append(dbRoad.RoadSegments, persistence.RoadSegment{SegmentID: memSegID})
-		}
-
-		result = db.impl.Create(dbRoad)
-		if result.RowsAffected == 0 {
-			return result.Error
-		}
-
+		db.addNewRoadSegment(segmentID)
 		_ = db.impl.Where(segment).First(segment)
 	}
 
@@ -794,6 +772,19 @@ func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*per
 		Latitude:              lat,
 		Longitude:             lon,
 		LaneID:                int(src.LaneID.Value),
+		Intensity:             int(src.Intensity.Value),
+	}
+
+	if src.RefRoadSegment != nil {
+		segment := &persistence.RoadSegment{SegmentID: src.RefRoadSegment.Object}
+		result := db.impl.Where(segment).First(segment)
+
+		if result.RowsAffected == 0 {
+			db.addNewRoadSegment(src.RefRoadSegment.Object)
+			_ = db.impl.Where(segment).First(segment)
+		}
+
+		tfo.RoadSegmentID = segment.ID
 	}
 
 	if src.DateObservedTo != nil {
@@ -839,6 +830,33 @@ func validateSurfaceType(surfaceType string) error {
 	}
 
 	return fmt.Errorf("surfaceType does not match any known types")
+}
+
+func (db *myDB) addNewRoadSegment(segmentID string) (*persistence.Road, error) {
+	log.Infof("No segment with id %s found in database. Adding it before surface can be updated.", segmentID)
+
+	memRoad, err := db.GetRoadBySegmentID(segmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	dbRoad := &persistence.Road{RID: memRoad.ID()}
+
+	for _, memSegID := range memRoad.GetSegmentIdentities() {
+		_, err := db.GetRoadSegmentByID(memSegID)
+		if err != nil {
+			return nil, err
+		}
+
+		dbRoad.RoadSegments = append(dbRoad.RoadSegments, persistence.RoadSegment{SegmentID: memSegID})
+	}
+
+	result := db.impl.Create(dbRoad)
+	if result.RowsAffected == 0 {
+		return nil, result.Error
+	}
+
+	return dbRoad, nil
 }
 
 type myDB struct {
