@@ -748,6 +748,7 @@ func (db *myDB) UpdateRoadSegmentSurface(segmentID, surfaceType string, probabil
 }
 
 func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*persistence.TrafficFlowObserved, error) {
+
 	pt := src.Location.GetAsPoint()
 	lon := pt.Coordinates[0]
 	lat := pt.Coordinates[1]
@@ -761,14 +762,14 @@ func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*per
 	}
 
 	layout := "2006-01-02T15:04:05Z"
-	dateObservedStr, err := time.Parse(layout, src.DateObserved.Value.Value)
+	dateObserved, err := time.Parse(layout, src.DateObserved.Value.Value)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse DateObserved into string: %s", err)
 	}
 
 	tfo := &persistence.TrafficFlowObserved{
 		TrafficFlowObservedID: src.ID,
-		DateObserved:          dateObservedStr,
+		DateObserved:          dateObserved,
 		Latitude:              lat,
 		Longitude:             lon,
 		LaneID:                int(src.LaneID.Value),

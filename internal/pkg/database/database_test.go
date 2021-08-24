@@ -1,6 +1,7 @@
 package database_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -114,6 +115,60 @@ func TestThatTrafficFlowObservedCanBeCreatedAndRetrieved(t *testing.T) {
 		t.Errorf("Something went wrong when retrieving TrafficFlowsObserved: %s", err)
 	}
 }
+
+func TestCreateTrafficFlowObservedFailsOnEmptyDateObserved(t *testing.T) {
+	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
+
+	tfo := fiware.TrafficFlowObserved{}
+	json.Unmarshal([]byte(tfoJsonNoDate), &tfo)
+
+	_, err := db.CreateTrafficFlowObserved(&tfo)
+	if err == nil {
+		t.Errorf("Nothing went wrong when creating new TrafficFlowObserved: %s", err.Error())
+	}
+}
+
+const tfoJsonNoDate string = `{
+    "@context": [
+      "https://schema.lab.fiware.org/ld/context",
+      "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+    ],
+    "id": "urn:ngsi-ld:TrafficFlowObserved:sn-tcr-01:test",
+    "type": "TrafficFlowObserved",
+		"location": {
+			"type": "GeoProperty",
+			"value": {
+				"coordinates": [
+					17.0,
+					62.2
+				],
+			"type": "Point"
+			}
+		},
+		"dateObserved": {
+			"type": "Property",
+			"value": {
+				"type": "DateTime",
+				"value": "2016-12-07T11:10:00Z/2016-12-07T11:15:00Z"
+			}
+		},
+		"laneID": {
+			"type": "Property",
+			"value": 1
+		},
+		"averageVehicleSpeed": {
+			"type": "Property",
+			"value": 17.3
+		},
+		"intensity": {
+			"type": "Property",
+			"value": 8
+		},
+		"refRoadSegment": {
+			"type": "Relationship",
+			"object": ""
+		}
+}`
 
 func TestConnectToSQLite(t *testing.T) {
 	segmentID := "21277:153930"

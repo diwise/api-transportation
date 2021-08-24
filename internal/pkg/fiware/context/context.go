@@ -49,6 +49,9 @@ func (cs *contextSource) CreateEntity(typeName, entityID string, req ngsi.Reques
 		}
 		tfo.ID = uuid.New().String()
 		_, err = cs.db.CreateTrafficFlowObserved(tfo)
+		if err != nil {
+			log.Errorf("could not create new tfo in database because: %s", err.Error())
+		}
 	}
 
 	return err
