@@ -92,7 +92,7 @@ func CreateRouterAndStartServing(messenger MessagingContext, db database.Datasto
 		port = "8484"
 	}
 
-	log.Printf("Starting api-transportation on port %s.\n", port)
+	log.Infof("Starting api-transportation on port %s.\n", port)
 
 	log.Fatal(http.ListenAndServe(":"+port, router.impl))
 }

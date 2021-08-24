@@ -457,7 +457,7 @@ func NewPostgreSQLConnector() ConnectorFunc {
 
 	return func() (*gorm.DB, error) {
 		for {
-			log.Printf("Connecting to database host %s ...\n", dbHost)
+			log.Infof("Connecting to database host %s ...\n", dbHost)
 			db, err := gorm.Open(postgres.Open(dbURI), &gorm.Config{})
 			if err != nil {
 				log.Fatalf("Failed to connect to database %s \n", err)
