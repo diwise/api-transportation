@@ -749,16 +749,21 @@ func (db *myDB) UpdateRoadSegmentSurface(segmentID, surfaceType string, probabil
 
 func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*persistence.TrafficFlowObserved, error) {
 
-	pt := src.Location.GetAsPoint()
-	lon := pt.Coordinates[0]
-	lat := pt.Coordinates[1]
+	var lon float64
+	var lat float64
 
-	if lon < 15.516210 || lon > 17.975816 {
-		return nil, fmt.Errorf("longitude %f is out of bounds: [15.516210, 17.975816]", lon)
-	}
+	if src.Location != nil {
+		pt := src.Location.GetAsPoint()
+		lon := pt.Longitude()
+		lat := pt.Latitude()
 
-	if lat < 62.042301 || lat > 62.648987 {
-		return nil, fmt.Errorf("latitude %f is out of bounds: [62.042301, 62.648987]", lat)
+		if lon < 15.516210 || lon > 17.975816 {
+			return nil, fmt.Errorf("longitude %f is out of bounds: [15.516210, 17.975816]", lon)
+		}
+
+		if lat < 62.042301 || lat > 62.648987 {
+			return nil, fmt.Errorf("latitude %f is out of bounds: [62.042301, 62.648987]", lat)
+		}
 	}
 
 	layout := "2006-01-02T15:04:05Z"
