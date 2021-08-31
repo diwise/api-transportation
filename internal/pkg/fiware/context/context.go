@@ -2,6 +2,7 @@ package context
 
 import (
 	"errors"
+	"math"
 	"sort"
 	"strings"
 	"time"
@@ -12,6 +13,7 @@ import (
 	diwise "github.com/diwise/ngsi-ld-golang/pkg/datamodels/diwise"
 	"github.com/diwise/ngsi-ld-golang/pkg/datamodels/fiware"
 	ngsi "github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld"
+	"github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld/geojson"
 	ngsitypes "github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld/types"
 	"github.com/google/uuid"
 
@@ -197,7 +199,13 @@ func (cs *contextSource) getTrafficFlowsObserved(query ngsi.Query, callback ngsi
 	}
 
 	for _, tfo := range trafficFlowObserveds {
-		fiwareTrafficFlowObserved := fiware.NewTrafficFlowObserved(tfo.TrafficFlowObservedID, tfo.Latitude, tfo.Longitude, tfo.DateObserved.String(), int(tfo.LaneID), int(tfo.Intensity))
+		timeStr := tfo.DateObserved.Format(time.RFC3339)
+		fiwareTrafficFlowObserved := fiware.NewTrafficFlowObserved(tfo.TrafficFlowObservedID, timeStr, int(tfo.LaneID), int(tfo.Intensity))
+
+		if math.Abs(tfo.Latitude) > 0.1 || math.Abs(tfo.Longitude) > 0.1 {
+			fiwareTrafficFlowObserved.Location = geojson.CreateGeoJSONPropertyFromWGS84(tfo.Longitude, tfo.Latitude)
+		}
+
 		err = callback(fiwareTrafficFlowObserved)
 		if err != nil {
 			break
