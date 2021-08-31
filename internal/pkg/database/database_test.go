@@ -10,6 +10,7 @@ import (
 
 	db "github.com/diwise/api-transportation/internal/pkg/database"
 	"github.com/diwise/ngsi-ld-golang/pkg/datamodels/fiware"
+	"github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld/geojson"
 	"github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld/types"
 	log "github.com/sirupsen/logrus"
 )
@@ -102,8 +103,9 @@ func TestUpdateRoadSegmentSurface(t *testing.T) {
 func TestThatTrafficFlowObservedCanBeCreatedAndRetrieved(t *testing.T) {
 	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
 
-	src := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", 62.389109, 17.310863, "2016-12-07T11:10:00.000Z", 1, 127)
+	src := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", "2016-12-07T11:10:00.000Z", 1, 127)
 	src.RefRoadSegment = types.NewSingleObjectRelationship("refRoadSegment")
+	src.Location = geojson.CreateGeoJSONPropertyFromWGS84(17.310863, 62.389109)
 
 	_, err := db.CreateTrafficFlowObserved(&src)
 	if err != nil {

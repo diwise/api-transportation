@@ -9,8 +9,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/diwise/messaging-golang v0.0.0-20210519125901-747dbe4d4b42 h1:1pTPqRYlH1Q18wMLFuek3PfxaNNHTxbNtkfFHMeWZwI=
 github.com/diwise/messaging-golang v0.0.0-20210519125901-747dbe4d4b42/go.mod h1:tXC8qL64QBI34uRpdbX+LUwoGjgIp1bqpecfBvIYkTw=
-github.com/diwise/ngsi-ld-golang v0.0.0-20210831104645-68c37bf9ec43 h1:UFVlpP3jkVEviB1z5tJzxqN9BDrRg56Su+NkOZeixIw=
-github.com/diwise/ngsi-ld-golang v0.0.0-20210831104645-68c37bf9ec43/go.mod h1:3FPU/KnkLJTOttYoYnyxeeNa2Pco8nhPXrhspF7qtXM=
+github.com/diwise/ngsi-ld-golang v0.0.0-20210831145316-7634fd293238 h1:s8X26q6SRZDr6mRCzLwpDJXMo1xTUZ7HfOdWj4oO46M=
+github.com/diwise/ngsi-ld-golang v0.0.0-20210831145316-7634fd293238/go.mod h1:3FPU/KnkLJTOttYoYnyxeeNa2Pco8nhPXrhspF7qtXM=
 github.com/go-chi/chi v4.1.2+incompatible h1:fGFk2Gmi/YKXk0OmGfBh0WgmN3XB8lVnEyNz34tQRec=
 github.com/go-chi/chi v4.1.2+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxmMeXJVKy9tTv1XzQ=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
