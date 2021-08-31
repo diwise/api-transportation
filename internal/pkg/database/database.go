@@ -767,7 +767,7 @@ func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*per
 	}
 
 	layout := "2006-01-02T15:04:05Z"
-	dateObserved, err := time.Parse(layout, src.DateObserved.Value.Value)
+	dateObserved, err := time.Parse(layout, src.DateObserved.Value)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse DateObserved into string: %s", err)
 	}

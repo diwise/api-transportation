@@ -36,7 +36,10 @@ services:
 
 
   rabbitmq:
-    image: 'bitnami/rabbitmq:3.8'
+    image: 'arm64v8/rabbitmq:3.8' #temporary image to work on Apple M1
+    environment:
+      RABBITMQ_DEFAULT_USER: 'user'
+      RABBITMQ_DEFAULT_PASS: 'bitnami'
     ports:
       - '4369'
       - '5672'
