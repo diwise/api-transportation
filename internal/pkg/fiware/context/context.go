@@ -239,6 +239,10 @@ func (cs contextSource) ProvidesEntitiesWithMatchingID(entityID string) bool {
 		strings.HasPrefix(entityID, diwise.RoadSurfaceObservedIDPrefix)
 }
 
+func (cs contextSource) GetProvidedTypeFromID(entityID string) (string, error) {
+	return "", errors.New("not implemented")
+}
+
 func (cs contextSource) ProvidesType(typeName string) bool {
 	return typeName == "Road" || typeName == "RoadSegment" || typeName == "RoadSurfaceObserved" || typeName == "TrafficFlowObserved"
 }
