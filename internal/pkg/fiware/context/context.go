@@ -202,6 +202,10 @@ func (cs *contextSource) getTrafficFlowsObserved(query ngsi.Query, callback ngsi
 		timeStr := tfo.DateObserved.Format(time.RFC3339)
 		fiwareTrafficFlowObserved := fiware.NewTrafficFlowObserved(tfo.TrafficFlowObservedID, timeStr, int(tfo.LaneID), int(tfo.Intensity))
 
+		if tfo.AverageVehicleSpeed > 0.1 {
+			fiwareTrafficFlowObserved.AverageVehicleSpeed = ngsitypes.NewNumberProperty(tfo.AverageVehicleSpeed)
+		}
+
 		if math.Abs(tfo.Latitude) > 0.1 || math.Abs(tfo.Longitude) > 0.1 {
 			fiwareTrafficFlowObserved.Location = geojson.CreateGeoJSONPropertyFromWGS84(tfo.Longitude, tfo.Latitude)
 		}
