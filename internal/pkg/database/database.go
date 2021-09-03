@@ -817,7 +817,7 @@ func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*per
 
 func (db *myDB) GetTrafficFlowsObserved(limit int) ([]persistence.TrafficFlowObserved, error) {
 	tfo := []persistence.TrafficFlowObserved{}
-	result := db.impl.Order("date_observed, lane_id").Find(&tfo).Limit(limit)
+	result := db.impl.Order("date_observed desc, lane_id").Limit(limit).Find(&tfo)
 	if result.Error != nil {
 		return nil, result.Error
 	}

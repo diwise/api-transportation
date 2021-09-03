@@ -118,6 +118,34 @@ func TestThatTrafficFlowObservedCanBeCreatedAndRetrieved(t *testing.T) {
 	}
 }
 
+func TestThatGetTrafficFlowObservedReturnsCorrectAmountOfEntries(t *testing.T) {
+	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
+
+	fiwareTfos := []fiware.TrafficFlowObserved{}
+	src1 := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", "2016-12-07T11:10:00.000Z", 1, 35)
+	src2 := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", "2016-12-07T11:30:00.000Z", 3, 34)
+	src3 := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", "2016-12-07T12:30:00.000Z", 2, 420)
+	src4 := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", "2016-12-07T13:30:00.000Z", 6, 50)
+	src5 := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", "2016-12-07T14:30:00.000Z", 0, 3)
+
+	fiwareTfos = append(fiwareTfos, src1, src2, src3, src4, src5)
+
+	for _, tfo := range fiwareTfos {
+		_, err := db.CreateTrafficFlowObserved(&tfo)
+		if err != nil {
+			t.Errorf("Something went wrong when creating new TrafficFlowObserved: %s", err)
+		}
+	}
+
+	tfos, _ := db.GetTrafficFlowsObserved(3)
+	if len(tfos) < 3 || len(tfos) > 3 {
+		t.Errorf("GetTrafficFlowsObserved retrieved an unexpectd amount of entries, got: %d, expected 3", len(tfos))
+	}
+
+	tfosBytes, _ := json.MarshalIndent(tfos, " ", "  ")
+	log.Infoln(string(tfosBytes))
+}
+
 func TestCreateTrafficFlowObservedFailsOnEmptyDateObserved(t *testing.T) {
 	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
 
