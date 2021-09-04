@@ -193,28 +193,31 @@ func (cs *contextSource) getRoadSurfaceObserved(query ngsi.Query, callback ngsi.
 }
 
 func (cs *contextSource) getTrafficFlowsObserved(query ngsi.Query, callback ngsi.QueryEntitiesCallback) error {
-	trafficFlowObserveds, err := cs.db.GetTrafficFlowsObserved(int(query.PaginationLimit()))
+	observations, err := cs.db.GetTrafficFlowsObserved(int(query.PaginationLimit()))
 	if err != nil {
 		return err
 	}
 
-	for _, tfo := range trafficFlowObserveds {
-		timeStr := tfo.DateObserved.Format(time.RFC3339)
-		fiwareTrafficFlowObserved := fiware.NewTrafficFlowObserved(tfo.TrafficFlowObservedID, timeStr, int(tfo.LaneID), int(tfo.Intensity))
+	for i := len(observations) - 1; i >= 0; i-- {
+		obs := observations[i]
 
-		if tfo.AverageVehicleSpeed > 0.1 {
-			fiwareTrafficFlowObserved.AverageVehicleSpeed = ngsitypes.NewNumberProperty(tfo.AverageVehicleSpeed)
+		timeStr := obs.DateObserved.Format(time.RFC3339)
+		trafficFlowObserved := fiware.NewTrafficFlowObserved(obs.TrafficFlowObservedID, timeStr, int(obs.LaneID), int(obs.Intensity))
+
+		if obs.AverageVehicleSpeed > 0.1 {
+			trafficFlowObserved.AverageVehicleSpeed = ngsitypes.NewNumberProperty(obs.AverageVehicleSpeed)
 		}
 
-		if math.Abs(tfo.Latitude) > 0.1 || math.Abs(tfo.Longitude) > 0.1 {
-			fiwareTrafficFlowObserved.Location = geojson.CreateGeoJSONPropertyFromWGS84(tfo.Longitude, tfo.Latitude)
+		if math.Abs(obs.Latitude) > 0.1 || math.Abs(obs.Longitude) > 0.1 {
+			trafficFlowObserved.Location = geojson.CreateGeoJSONPropertyFromWGS84(obs.Longitude, obs.Latitude)
 		}
 
-		err = callback(fiwareTrafficFlowObserved)
+		err = callback(trafficFlowObserved)
 		if err != nil {
 			break
 		}
 	}
+
 	return nil
 }
 
