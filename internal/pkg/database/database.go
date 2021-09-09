@@ -827,7 +827,7 @@ func insertTemporalSQL(gorm *gorm.DB, property string, from, to time.Time) *gorm
 		gorm = gorm.Where(fmt.Sprintf("%s < ?", property), to)
 	}
 
-	return gorm.Debug()
+	return gorm
 }
 
 func (db *myDB) GetTrafficFlowsObserved(from, to time.Time, limit int) ([]persistence.TrafficFlowObserved, error) {
