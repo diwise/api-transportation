@@ -37,7 +37,7 @@ func (cs *contextSource) CreateEntity(typeName, entityID string, req ngsi.Reques
 		rso := &diwise.RoadSurfaceObserved{}
 		err = req.DecodeBodyInto(rso)
 		if err != nil {
-			log.Errorf("Could not create new RoadSurfaceObserved: " + err.Error())
+			log.Errorf("could not create new RoadSurfaceObserved: %s", err.Error())
 			return err
 		}
 		rso.ID = uuid.New().String()
@@ -46,13 +46,13 @@ func (cs *contextSource) CreateEntity(typeName, entityID string, req ngsi.Reques
 		tfo := &fiware.TrafficFlowObserved{}
 		err = req.DecodeBodyInto(tfo)
 		if err != nil {
-			log.Errorf("Could not create new TrafficFlowObserved: " + err.Error())
+			log.Errorf("could not create new TrafficFlowObserved: %s", err.Error())
 			return err
 		}
 		tfo.ID = uuid.New().String()
 		_, err = cs.db.CreateTrafficFlowObserved(tfo)
 		if err != nil {
-			log.Errorf("could not create new tfo in database because: %s", err.Error())
+			log.Errorf("could not create new tfo in database: %s", err.Error())
 		}
 	}
 
@@ -193,7 +193,13 @@ func (cs *contextSource) getRoadSurfaceObserved(query ngsi.Query, callback ngsi.
 }
 
 func (cs *contextSource) getTrafficFlowsObserved(query ngsi.Query, callback ngsi.QueryEntitiesCallback) error {
-	observations, err := cs.db.GetTrafficFlowsObserved(int(query.PaginationLimit()))
+	var from, to time.Time
+
+	if query.IsTemporalQuery() {
+		from, to = query.Temporal().TimeSpan()
+	}
+
+	observations, err := cs.db.GetTrafficFlowsObserved(from, to, int(query.PaginationLimit()))
 	if err != nil {
 		return err
 	}

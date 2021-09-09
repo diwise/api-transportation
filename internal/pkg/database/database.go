@@ -364,7 +364,7 @@ type Datastore interface {
 	GetRoadSurfacesObserved() ([]persistence.RoadSurfaceObserved, error)
 
 	CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*persistence.TrafficFlowObserved, error)
-	GetTrafficFlowsObserved(limit int) ([]persistence.TrafficFlowObserved, error)
+	GetTrafficFlowsObserved(from, to time.Time, limit int) ([]persistence.TrafficFlowObserved, error)
 }
 
 //InitFromReader takes a reader interface and initialises the datastore
@@ -815,9 +815,33 @@ func (db *myDB) CreateTrafficFlowObserved(src *fiware.TrafficFlowObserved) (*per
 	return tfo, nil
 }
 
-func (db *myDB) GetTrafficFlowsObserved(limit int) ([]persistence.TrafficFlowObserved, error) {
+func insertTemporalSQL(gorm *gorm.DB, property string, from, to time.Time) *gorm.DB {
+	if !from.IsZero() {
+		gorm = gorm.Where(fmt.Sprintf("%s >= ?", property), from)
+		if gorm.Error != nil {
+			return gorm
+		}
+	}
+
+	if !to.IsZero() {
+		gorm = gorm.Where(fmt.Sprintf("%s < ?", property), to)
+	}
+
+	return gorm.Debug()
+}
+
+func (db *myDB) GetTrafficFlowsObserved(from, to time.Time, limit int) ([]persistence.TrafficFlowObserved, error) {
 	tfo := []persistence.TrafficFlowObserved{}
-	result := db.impl.Order("date_observed desc, lane_id").Limit(limit).Find(&tfo)
+	gorm := db.impl.Order("date_observed desc, lane_id desc")
+
+	if !from.IsZero() || !to.IsZero() {
+		gorm = insertTemporalSQL(gorm, "date_observed", from, to)
+		if gorm.Error != nil {
+			return nil, gorm.Error
+		}
+	}
+
+	result := gorm.Limit(limit).Find(&tfo)
 	if result.Error != nil {
 		return nil, result.Error
 	}

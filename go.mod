@@ -4,9 +4,10 @@ go 1.16
 
 require (
 	github.com/diwise/messaging-golang v0.0.0-20210519125901-747dbe4d4b42
-	github.com/diwise/ngsi-ld-golang v0.0.0-20210831145316-7634fd293238
+	github.com/diwise/ngsi-ld-golang v0.0.0-20210909152438-f022f29ff223
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/google/uuid v1.1.2
+	github.com/matryer/is v1.4.0
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/streadway/amqp v1.0.0

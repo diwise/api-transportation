@@ -13,6 +13,8 @@ import (
 	"github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld/geojson"
 	"github.com/diwise/ngsi-ld-golang/pkg/ngsi-ld/types"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/matryer/is"
 )
 
 func TestMain(m *testing.M) {
@@ -100,7 +102,12 @@ func TestUpdateRoadSegmentSurface(t *testing.T) {
 	}
 }
 
+var theDawnOfTime time.Time
+var theEndOfTime time.Time
+
 func TestThatTrafficFlowObservedCanBeCreatedAndRetrieved(t *testing.T) {
+	is := is.New(t)
+
 	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
 
 	src := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", "2016-12-07T11:10:00.000Z", 1, 127)
@@ -108,22 +115,20 @@ func TestThatTrafficFlowObservedCanBeCreatedAndRetrieved(t *testing.T) {
 	src.Location = geojson.CreateGeoJSONPropertyFromWGS84(17.310863, 62.389109)
 
 	_, err := db.CreateTrafficFlowObserved(&src)
-	if err != nil {
-		t.Errorf("Something went wrong when creating new TrafficFlowObserved: %s", err)
-	}
+	is.NoErr(err)
 
-	_, err = db.GetTrafficFlowsObserved(3)
-	if err != nil {
-		t.Errorf("Something went wrong when retrieving TrafficFlowsObserved: %s", err)
-	}
+	_, err = db.GetTrafficFlowsObserved(theDawnOfTime, theEndOfTime, 3)
+	is.NoErr(err)
 }
 
 func TestThatGetTrafficFlowObservedReturnsCorrectAmountOfEntriesInTheCorrectOrder(t *testing.T) {
+	is := is.New(t)
+
 	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
 
 	fiwareTfos := []fiware.TrafficFlowObserved{}
-	src1 := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", "2016-12-07T11:10:00.000Z", 1, 35)
-	src2 := *fiware.NewTrafficFlowObserved("urn:ngsi-ld:TrafficFlowObserved", "2016-12-07T11:30:00.000Z", 3, 34)
+	src1 := *fiware.NewTrafficFlowObserved("ignored0", "2016-12-07T11:10:00.000Z", 1, 35)
+	src2 := *fiware.NewTrafficFlowObserved("ignored1", "2016-12-07T11:30:00.000Z", 3, 34)
 	src3 := *fiware.NewTrafficFlowObserved("third", "2016-12-07T12:30:00.000Z", 2, 420)
 	src4 := *fiware.NewTrafficFlowObserved("second", "2016-12-07T13:30:00.000Z", 6, 50)
 	src5 := *fiware.NewTrafficFlowObserved("first", "2016-12-07T14:30:00.000Z", 0, 3)
@@ -132,35 +137,105 @@ func TestThatGetTrafficFlowObservedReturnsCorrectAmountOfEntriesInTheCorrectOrde
 
 	for _, tfo := range fiwareTfos {
 		_, err := db.CreateTrafficFlowObserved(&tfo)
-		if err != nil {
-			t.Errorf("Something went wrong when creating new TrafficFlowObserved: %s", err)
-		}
+		is.NoErr(err)
 	}
 
-	tfos, _ := db.GetTrafficFlowsObserved(3)
-	if len(tfos) != 3 {
-		t.Errorf("GetTrafficFlowsObserved retrieved an unexpectd amount of entries, got: %d, expected 3", len(tfos))
-	}
+	tfos, _ := db.GetTrafficFlowsObserved(theDawnOfTime, theEndOfTime, 3)
+	is.Equal(len(tfos), 3) // unexpected number of observations returned
 
 	suffixes := []string{"first", "second", "third"}
 
 	for i, tfo := range tfos {
-		if !strings.HasSuffix(tfo.TrafficFlowObservedID, suffixes[i]) {
-			t.Errorf("Results returned in the wrong order")
-		}
+		is.True(strings.HasSuffix(tfo.TrafficFlowObservedID, suffixes[i])) // results returned in the wrong order
 	}
 }
 
+func TestThatGetTrafficFlowObservedHandlesSelectFromTime(t *testing.T) {
+	is := is.New(t)
+
+	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
+
+	fiwareTfos := []fiware.TrafficFlowObserved{}
+	src1 := *fiware.NewTrafficFlowObserved("ignored0", "2016-12-07T11:10:00.000Z", 1, 35)
+	src2 := *fiware.NewTrafficFlowObserved("ignored1", "2016-12-07T11:30:00.000Z", 3, 34)
+	src3 := *fiware.NewTrafficFlowObserved("third", "2016-12-07T12:30:00.000Z", 2, 420)
+	src4 := *fiware.NewTrafficFlowObserved("second", "2016-12-07T13:30:00.000Z", 6, 50)
+	src5 := *fiware.NewTrafficFlowObserved("first", "2016-12-07T14:30:00.000Z", 0, 3)
+
+	fiwareTfos = append(fiwareTfos, src1, src2, src3, src4, src5)
+
+	for _, tfo := range fiwareTfos {
+		_, err := db.CreateTrafficFlowObserved(&tfo)
+		is.NoErr(err)
+	}
+
+	fromTime, _ := time.Parse(time.RFC3339, "2016-12-07T13:00:00.000Z")
+
+	tfos, _ := db.GetTrafficFlowsObserved(fromTime, theEndOfTime, 10)
+	is.Equal(len(tfos), 2) // only expected the last two records
+}
+
+func TestThatGetTrafficFlowObservedHandlesSelectBeforeTime(t *testing.T) {
+	is := is.New(t)
+
+	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
+
+	fiwareTfos := []fiware.TrafficFlowObserved{}
+	src1 := *fiware.NewTrafficFlowObserved("ignored0", "2016-12-07T11:10:00.000Z", 1, 35)
+	src2 := *fiware.NewTrafficFlowObserved("ignored1", "2016-12-07T11:30:00.000Z", 3, 34)
+	src3 := *fiware.NewTrafficFlowObserved("third", "2016-12-07T12:30:00.000Z", 2, 420)
+	src4 := *fiware.NewTrafficFlowObserved("second", "2016-12-07T13:30:00.000Z", 6, 50)
+	src5 := *fiware.NewTrafficFlowObserved("first", "2016-12-07T14:30:00.000Z", 0, 3)
+
+	fiwareTfos = append(fiwareTfos, src1, src2, src3, src4, src5)
+
+	for _, tfo := range fiwareTfos {
+		_, err := db.CreateTrafficFlowObserved(&tfo)
+		is.NoErr(err)
+	}
+
+	endTime, _ := time.Parse(time.RFC3339, "2016-12-07T11:15:00.000Z")
+
+	tfos, _ := db.GetTrafficFlowsObserved(theDawnOfTime, endTime, 10)
+	is.Equal(len(tfos), 1) // only expected the first record
+}
+
+func TestThatGetTrafficFlowObservedHandlesSelectBetweenTimes(t *testing.T) {
+	is := is.New(t)
+
+	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
+
+	fiwareTfos := []fiware.TrafficFlowObserved{}
+	src1 := *fiware.NewTrafficFlowObserved("ignored0", "2016-12-07T11:10:00.000Z", 1, 35)
+	src2 := *fiware.NewTrafficFlowObserved("ignored1", "2016-12-07T11:30:00.000Z", 3, 34)
+	src3 := *fiware.NewTrafficFlowObserved("third", "2016-12-07T12:30:00.000Z", 2, 420)
+	src4 := *fiware.NewTrafficFlowObserved("second", "2016-12-07T13:30:00.000Z", 6, 50)
+	src5 := *fiware.NewTrafficFlowObserved("first", "2016-12-07T14:30:00.000Z", 0, 3)
+
+	fiwareTfos = append(fiwareTfos, src1, src2, src3, src4, src5)
+
+	for _, tfo := range fiwareTfos {
+		_, err := db.CreateTrafficFlowObserved(&tfo)
+		is.NoErr(err)
+	}
+
+	startTime, _ := time.Parse(time.RFC3339, "2016-12-07T11:15:00.000Z")
+	endTime, _ := time.Parse(time.RFC3339, "2016-12-07T14:00:00.000Z")
+
+	tfos, _ := db.GetTrafficFlowsObserved(startTime, endTime, 10)
+	is.Equal(len(tfos), 3) // only expected the three middle records
+}
+
 func TestCreateTrafficFlowObservedFailsOnEmptyDateObserved(t *testing.T) {
+	is := is.New(t)
+
 	db, _ := db.NewDatabaseConnection(db.NewSQLiteConnector(), nil)
 
 	tfo := fiware.TrafficFlowObserved{}
 	json.Unmarshal([]byte(tfoJsonNoDate), &tfo)
 
 	_, err := db.CreateTrafficFlowObserved(&tfo)
-	if err == nil {
-		t.Errorf("Nothing went wrong when creating new TrafficFlowObserved: %s", err.Error())
-	}
+	is.True(err != nil) // unexpected success when creating new TrafficFlowObserved
 }
 
 const tfoJsonNoDate string = `{
